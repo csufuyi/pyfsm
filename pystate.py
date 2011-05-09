@@ -2,20 +2,27 @@
 class task_registry(object):
     def __init__(self):
         self.tasks = {}
+        self.getattr = None
+
+    def set_getter(self, getter):
+        self.getattr = getter
+    def get_getter(self):
+        return self.getattr
 
     def get_task(self, name):
         return self.tasks.setdefault(name, task(name))
 Registry = task_registry()
 
 class task(object):
-    def __init__(self, name, cmp):
+    warn_msg = 'warning: multiple instances of state %s in task %s'
+    def __init__(self, name):
         self.name = name
         self.current_state = None
-        self.cmp = cmp
         self.states = {}
+        self.getattr = None
 
         self._locals = {}
-        self.globals = {}
+        self._globals = {}
         self.callbacks = {}
         self.exit = []
         class callback(object):
@@ -43,20 +50,31 @@ class task(object):
         self._locals = {}
         self.current_state.enter(self)
 
-    def send_event(self, event):
+    def send(self, event):
+        assert self.current_state, 'state machine is not running'
+
+        # recover the key for this event
+        for getattr in (self.getattr, Registry.getattr, lambda x: x):
+            try:
+                key = getattr(event)
+            except:
+                pass
+            else:
+                break
+
         # check callbacks first
-        callback = self.callbacks.get(event, [])
+        callback = self.callbacks.get(key, [])
         for x in callback:
             x(event)
 
         # if a transition exists, change the state
-        trans = self.current_state.transitions.get(event, None)
+        trans = self.current_state.transitions.get(key, None)
         if trans:
             self.start(trans)
 
     def add_state(self, name, state):
         if self.states.has_key(name):
-            print 'warning: multiple instances of state %s' % name
+            print task.warn_msg % (name, self.name)
         self.states[name] = state
 
     def get_name(self):
@@ -65,6 +83,9 @@ class task(object):
     @property
     def locals(self):
         return self._locals
+    @property
+    def globals(self):
+        return self._globals
 
 class transition(object):
     def __init__(self, key, value):
