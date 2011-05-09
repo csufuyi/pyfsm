@@ -17,6 +17,7 @@ def goodbye(self):
 say_hello = pystate.Registry.get_task('say_hello')
 say_hello.start('meet_and_greet')
 say_hello.send('hi')
+say_hello.send('dead message')
 say_hello.send('hi')
 say_hello.send('goodbye')
 
