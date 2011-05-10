@@ -1,21 +1,21 @@
 """
-pystate - Python Finite State Machine
+pyfsm - Python Finite State Machine
 =====================================
 
 A simple Python finite state machine implementation.
 
-pystate is based on various states contained within a task.
-The task can be retrieved using L{pystate.task_registry.get_task}.
-Use the L{pystate.Registry} object as the central L{pystate.task_registry}.
+pyfsm is based on various states contained within a task.
+The task can be retrieved using L{pyfsm.task_registry.get_task}.
+Use the L{pyfsm.Registry} object as the central L{pyfsm.task_registry}.
 
-Everything in pystate is used as a decorator. For example, to declare
+Everything in pyfsm is used as a decorator. For example, to declare
 a new state, use the following:
 
 >>> @state('task_name')
 ... def state_name(tsk): # tsk is the task object
 ...     ...
 
-To specify transitions, use the L{pystate.transition} decorator.
+To specify transitions, use the L{pyfsm.transition} decorator.
 
 >>> @transition(key, 'next_state'):
 ... def state_name(tsk):
@@ -38,16 +38,16 @@ To add an exit handler, use L{task.atexit}.
 ...     def goodbye(self): # self is a task object
 ...         print 'goodbye'
 
-To start a task, grab the task from the registry and call L{pystate.task.start}.
+To start a task, grab the task from the registry and call L{pyfsm.task.start}.
 
->>> task1 = pystate.Registry.get_task('task1')
+>>> task1 = pyfsm.Registry.get_task('task1')
 >>> task1.start('start_state') # start the state machine
 >>> task1.send(1) # send 1 as the event to the state machine
 >>> task1.send(2) # send 2
 >>> ...
 
 Sending immutable values, while it can be useful, doesn't always work.
-pystate allows you to specify a handler for retrieving the key
+pyfsm allows you to specify a handler for retrieving the key
 used when processing events. These keys can be set on two levels.
 
  - Specific task
@@ -59,7 +59,7 @@ For example, to set a custom key retrieval on the task level:
 
 >>> def key_retrieve(event):
 ...     return event.type # type is the variable we want to use as the key
->>> pystate.Registry.set_getter(key_retrieve, 'task1')
+>>> pyfsm.Registry.set_getter(key_retrieve, 'task1')
 
 To set a key retrieval for the system as a whole, use the same function
 but leave out the string specifying the task name.
@@ -77,7 +77,7 @@ but leave out the string specifying the task name.
 #       copyright notice, this list of conditions and the following
 #       disclaimer in the documentation and/or other materials
 #       provided with the distribution.
-#     * Neither the name of pystate nor the names of its
+#     * Neither the name of pyfsm nor the names of its
 #       contributors may be used to endorse or promote products
 #       derived from this software without specific prior written
 #       permission.
@@ -109,9 +109,9 @@ class task_registry(object):
     Keeps track of the tasks that have been declared.
 
     This object should not be created by the user, but should
-    instead reference the L{pystate.Registry} value instead.
+    instead reference the L{pyfsm.Registry} value instead.
 
-    Tasks are added to the L{pystate.Registry} automatically
+    Tasks are added to the L{pyfsm.Registry} automatically
     and can be retrieved with with L{get_task}.
     """
     def __init__(self):
@@ -162,7 +162,7 @@ class task_registry(object):
         @param name: Task name.
         @type name: C{str}
         @note: If the task does not exist yet, this will create it.
-        Tasks are made automatically when using the L{pystate.state}
+        Tasks are made automatically when using the L{pyfsm.state}
         decorator.
         """
         return self.tasks.setdefault(name, task(name))
@@ -170,8 +170,8 @@ class task_registry(object):
 """
 Registry where all tasks are stored.
 
-Tasks are made through teh L{pystate.state} decorator automatically.
-They are stored inside of the L{pystate.Registry} object for later
+Tasks are made through teh L{pyfsm.state} decorator automatically.
+They are stored inside of the L{pyfsm.Registry} object for later
 retrieval.
 """
 Registry = task_registry()
@@ -181,7 +181,7 @@ class task(object):
     Denotes a task of operation.
 
     Tasks contain a set of states and transitions. To add a state
-    to a task, use the L{pystate.state} decorator and give the
+    to a task, use the L{pyfsm.state} decorator and give the
     task name as the parameter.
     """
     warn_msg = 'warning: multiple instances of state %s in task %s'
@@ -272,8 +272,8 @@ class task(object):
 
         @param name: name of the state.
         @type name: C{str}
-        @param state: the state object created by the L{pystate.state} decorator.
-        @type state: L{pystate.state}
+        @param state: the state object created by the L{pyfsm.state} decorator.
+        @type state: L{pyfsm.state}
         @note: This will not prevent multiple states from being
         named the same thing, but it will attempt to warn you.
         """
@@ -350,10 +350,10 @@ class state(object):
     ...     print 'hello, world'
 
     This will register a state named 'print_hello' into the 'task_name'
-    task. This assigns 'print_hello' as a L{pystate.state} object
+    task. This assigns 'print_hello' as a L{pyfsm.state} object
     (it is not a function anymore).
 
-    This can (and should) be combined with the L{pystate.transition} decorator.
+    This can (and should) be combined with the L{pyfsm.transition} decorator.
 
     @param name: the task name this state should be added into.
     @type name: C{str}
@@ -372,6 +372,6 @@ class state(object):
         Entrance function to this state.
 
         @param task: task this state is contained within
-        @type task: L{pystate.task}
+        @type task: L{pyfsm.task}
         """
         return self.func(task)

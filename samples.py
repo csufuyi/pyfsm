@@ -1,6 +1,6 @@
 
-import pystate
-from pystate import state, transition
+import pyfsm
+from pyfsm import state, transition
 
 @state('say_hello')
 @transition('goodbye', 'goodbye')
@@ -14,7 +14,7 @@ def meet_and_greet(self):
 def goodbye(self):
     print 'leaving so soon?'
 
-say_hello = pystate.Registry.get_task('say_hello')
+say_hello = pyfsm.Registry.get_task('say_hello')
 say_hello.start('meet_and_greet')
 say_hello.send('hi')
 say_hello.send('dead message')
@@ -24,7 +24,7 @@ say_hello.send('goodbye')
 # custom/mutable event
 class message(object):
     """
-    An example of a custom event. pystate offers no event class
+    An example of a custom event. pyfsm offers no event class
     of its own, but instead hooks into what event system you
     are already using.
     """
@@ -34,7 +34,7 @@ class message(object):
 
 def get_event_type(event):
     return event.type
-pystate.Registry.set_getter(get_event_type)
+pyfsm.Registry.set_getter(get_event_type)
 
 @state('messaging')
 @transition('goodbye', 'goodbye')
@@ -59,11 +59,11 @@ def goodbye(self):
     print self.globals['global_info']
     print 'goodbye'
 
-messaging = pystate.Registry.get_task('messaging')
+messaging = pyfsm.Registry.get_task('messaging')
 messaging.start('start_talking')
 messaging.send(message('hello, world'))
 messaging.send(message('today is a good day'))
-# pystate will try to get the key in the following order
+# pyfsm will try to get the key in the following order
 # - provided key function for the task
 # - provided key function for the registry
 # - the event itself
