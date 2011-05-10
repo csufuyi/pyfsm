@@ -34,7 +34,7 @@ class message(object):
 
 def get_event_type(event):
     return event.type
-pyfsm.Registry.set_getter(get_event_type)
+pyfsm.Registry.set_retrieval_func(get_event_type)
 
 @state('messaging')
 @transition('goodbye', 'goodbye')

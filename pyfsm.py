@@ -1,6 +1,6 @@
 """
 pyfsm - Python Finite State Machine
-=====================================
+===================================
 
 A simple Python finite state machine implementation.
 
@@ -59,7 +59,7 @@ For example, to set a custom key retrieval on the task level:
 
 >>> def key_retrieve(event):
 ...     return event.type # type is the variable we want to use as the key
->>> pyfsm.Registry.set_getter(key_retrieve, 'task1')
+>>> pyfsm.Registry.set_retrieval_func(key_retrieve, 'task1')
 
 To set a key retrieval for the system as a whole, use the same function
 but leave out the string specifying the task name.
@@ -118,17 +118,17 @@ class task_registry(object):
         self.tasks = {}
         self.getattr = None
 
-    def set_getter(self, getter, task_name = None):
+    def set_retrieval_func(self, getter, task_name = None):
         """
         Sets a function to be used to retrieve the key from an
         event on the task level.
 
         If a task_name is given, then this will assign the key
-        retrieval method to only that specific task.
+        retrieval function to only that specific task.
 
-        @param getter: Retrieval method.
+        @param getter: Retrieval function.
         @type getter: C{function}
-        @param task_name: Task to attach this retrieval method to.
+        @param task_name: Task to attach this retrieval function to.
         @type task_name: C{str}
         """
         if task_name:
@@ -136,17 +136,17 @@ class task_registry(object):
             tsk.getattr = getter
         else:
             self.getattr = getter
-    def get_getter(self, task_name = None):
+    def get_retrieval_func(self, task_name = None):
         """
-        Gets the key retrieval method.
+        Gets the key retrieval function.
 
         If a task name is given, then this return a tuple
-        with the task's retrieval method as the first element
-        and the registry's retrieval method as the second element.
+        with the task's retrieval function as the first element
+        and the registry's retrieval function as the second element.
 
-        @param task_name: Task name to get key retrieval method from.
+        @param task_name: Task name to get key retrieval function from.
         @type task_name: C{str}
-        @returns: Key retrieval method for a task/task registry.
+        @returns: Key retrieval function for a task/task registry.
         @rtype: C{(function, function)} or C{function}
         """
         if task_name:
@@ -319,6 +319,7 @@ class transition(object):
     Decorator to add a transition to a state.
 
     Used on a function with the following:
+
     >>> @transition(1, 'goodbye')
     ... def hello_state(tsk):
     ...    ...
